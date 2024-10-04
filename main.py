@@ -1,20 +1,24 @@
 import csv
 import os
 from datetime import datetime, timedelta
-from fft_selection import process_file  # 引入 fft_selection.py 中的 process_file 函數
+from FFT import fft_process
 from Weighted_Fcn import Weighted_Fcn
 
-# 定義資料根目錄
-folder = './test'  
+# Define data root
+folder = './fft_data'           # Input data root
+output_dir = './output/main'    # Output data root
 
-###################################################### 匯入演算法結果 ###################################################### 
+###################################################### Data Wrapper ######################################################
+
+
+###################################################### Algorithm ###################################################### 
 
 ## FFT ##
 FFT = []
 for file in os.listdir(folder):
     if file.endswith('.mat'):
         file_path = os.path.join(folder, file)
-        fft_result = process_file(file_path)  # 呼叫 FFT 函數
+        fft_result = fft_process(file_path)  # Call FFT Function
         FFT.append(fft_result)
 
 ## STA/LTA ##
@@ -22,7 +26,7 @@ SLTA = []
 for file in os.listdir(folder):
     if file.endswith('.mat'):
         file_path = os.path.join(folder, file)
-        slta_result = process_file(file_path)
+        slta_result = fft_process(file_path)
         SLTA.append(slta_result)
 
 ## LSTM ##
@@ -30,10 +34,11 @@ LSTM = []
 for file in os.listdir(folder):
     if file.endswith('.mat'):
         file_path = os.path.join(folder, file)
-        lstm_result = process_file(file_path)
+        lstm_result = fft_process(file_path)
         LSTM.append(lstm_result)
 
-###################################################### 融合演算法 ###################################################### 
+###################################################### Fusion Algorithm & Weighted ###################################################### 
+
 input_data = []
 for i in range(len(FFT)):
     filename = FFT[i][0]
@@ -46,24 +51,23 @@ for i in range(len(FFT)):
     ]
     input_data.append({"filename": filename, "time_abs": time_abs, "time_rel": time_rel,"value": value})
 
-# 權重
+# Weighted Input
 weights = [0.5, 0.4, 0.3]
 
-# 執行加權決策
+# Weighted Function
 output = Weighted_Fcn(input_data, weights)
 
-###################################################### 輸出結果 ###################################################### 
+###################################################### Output Resuits ###################################################### 
 
-output_dir = './output'
 os.makedirs(output_dir, exist_ok=True)
 
-# 輸出到 CSV 文件
+# Output to csv
 csv_file_path = os.path.join(output_dir, 'output.csv')
 with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
     fieldnames = ['filename', 'time_abs(%Y-%m-%dT%H:%M:%S.%f)', 'time_rel(sec)', 'event']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-    writer.writeheader()  # 寫入標頭
+    writer.writeheader()  # writeheader
     for i, result in enumerate(output):
         # 將時間轉換為所需的格式
         time_str = result['time_abs'].strftime('%Y-%m-%dT%H:%M:%S.%f') if isinstance(result['time_abs'], datetime) else str(result['time_abs'])
@@ -76,4 +80,4 @@ with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
             'event': result['decision']  # 將 event 值設置為結果的 decision
         })
 
-print("CSV 檔案已成功生成！")
+print("!!! CSV 檔案已成功生成 !!!")

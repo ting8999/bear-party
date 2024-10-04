@@ -22,7 +22,7 @@ def convert_to_reltime(time_str):
     return time_obj.hour * 3600 + time_obj.minute * 60 + time_obj.second
 
 
-def process_file(file_path):
+def fft_process(file_path):
     # 讀取 .mat 文件
     data = scipy.io.loadmat(file_path)
     velocity = data['velocity'].squeeze()
@@ -52,8 +52,4 @@ def process_file(file_path):
     else:
         return os.path.basename(file_path), first_time, last_time, 0    # 沒地震
 
-# # Check Results
-# for res in results:
-#     print(res)
-
-print('FFT has done')
+print('!!! FFT has done !!!')
