@@ -12,8 +12,6 @@ import numpy as np
 import scipy.io
 from datetime import datetime
 
-# 定義資料夾路徑和標準閾值
-folder = './test'  # 你的資料夾路徑
 standard = 6  # 設定標準閾值，依你的需求調整
 
 def convert_to_reltime(time_str):
@@ -24,7 +22,7 @@ def convert_to_reltime(time_str):
     return time_obj.hour * 3600 + time_obj.minute * 60 + time_obj.second
 
 
-def process_file(file_path):
+def fft_process(file_path):
     # 讀取 .mat 文件
     data = scipy.io.loadmat(file_path)
     velocity = data['velocity'].squeeze()
@@ -50,20 +48,8 @@ def process_file(file_path):
 
     # 比較最大振幅取 log 是否大於標準值，並回傳對應結果
     if log_max_amplitude > standard:
-        return os.path.basename(file_path), first_time, last_time, 0
+        return os.path.basename(file_path), first_time, last_time, 1    # 有地震
     else:
-        return os.path.basename(file_path), first_time, last_time, 1
+        return os.path.basename(file_path), first_time, last_time, 0    # 沒地震
 
-# 遍歷資料夾中的所有文件
-results = []
-for file in os.listdir(folder):
-    if file.endswith('.mat'):
-        file_path = os.path.join(folder, file)
-        result = process_file(file_path)
-        results.append(result)
-
-# # Check Results
-# for res in results:
-#     print(res)
-
-print('FFT has done')
+print('!!! FFT has done !!!')
