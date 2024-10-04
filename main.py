@@ -1,91 +1,79 @@
 import csv
 import os
 from datetime import datetime, timedelta
+from fft_selection import process_file  # 引入 fft_selection.py 中的 process_file 函數
+from Weighted_Fcn import Weighted_Fcn
 
-def weighted_decision(data, weights):
-    results = []
-    
-    for entry in data:
-        # 取得該時間段的數據
-        binary_data = entry['value']
-        
-        # 計算加權和
-        weighted_sum = sum(w * d for w, d in zip(weights, binary_data))
-        
-        # 根據加權和決定結果
-        if weighted_sum >= sum(weights) / 2:
-            decision = 1
-        else:
-            decision = 0
-        
-        # 儲存結果
-        results.append({
-            "time": entry['time'],
-            "decision": decision
-        })
-    
-    return results
+# 定義資料根目錄
+folder = './test'  
 
-# 模擬三個演算法的輸出
-STA_LTA = [
-    {"time": "00:00:30", "value": 1},
-    {"time": "00:01:00", "value": 0},
-    {"time": "00:01:30", "value": 1},
-    {"time": "00:02:00", "value": 1},
-    {"time": "00:02:30", "value": 1}
-]
+###################################################### 匯入演算法結果 ###################################################### 
 
-# LSTM 原本是 list 形式
-LSTM = [1, 0, 1, 0, 1]
-# 將 LSTM 轉換成字典列表形式
-LSTM_converted = [{"time": STA_LTA[i]["time"], "value": LSTM[i]} for i in range(len(LSTM))]
+## FFT ##
+FFT = []
+for file in os.listdir(folder):
+    if file.endswith('.mat'):
+        file_path = os.path.join(folder, file)
+        fft_result = process_file(file_path)  # 呼叫 FFT 函數
+        FFT.append(fft_result)
 
-FFT = [
-    {"time": "00:00:30", "value": 1},
-    {"time": "00:01:00", "value": 0},
-    {"time": "00:01:30", "value": 0},
-    {"time": "00:02:00", "value": 0},
-    {"time": "00:02:30", "value": 1}
-]
+## STA/LTA ##
+SLTA = []
+for file in os.listdir(folder):
+    if file.endswith('.mat'):
+        file_path = os.path.join(folder, file)
+        slta_result = process_file(file_path)
+        SLTA.append(slta_result)
 
-# 整合三個演算法的輸出，將每個時間段的數據結合起來
+## LSTM ##
+LSTM = []
+for file in os.listdir(folder):
+    if file.endswith('.mat'):
+        file_path = os.path.join(folder, file)
+        lstm_result = process_file(file_path)
+        LSTM.append(lstm_result)
+
+###################################################### 融合演算法 ###################################################### 
 input_data = []
-for i in range(len(STA_LTA)):
-    time = STA_LTA[i]["time"]
+for i in range(len(FFT)):
+    filename = FFT[i][0]
+    time_abs = FFT[i][1]
+    time_rel = FFT[i][2]
     value = [
-        STA_LTA[i]["value"],
-        LSTM_converted[i]["value"],
-        FFT[i]["value"]
+        FFT[i][3],      # FFT value
+        SLTA[i][3],     # FFT value
+        LSTM[i][3]      # LSTM value
     ]
-    input_data.append({"time": time, "value": value})
+    input_data.append({"filename": filename, "time_abs": time_abs, "time_rel": time_rel,"value": value})
 
 # 權重
 weights = [0.5, 0.4, 0.3]
 
 # 執行加權決策
-output = weighted_decision(input_data, weights)
+output = Weighted_Fcn(input_data, weights)
 
-###################################################### Output Result ######################################################
+###################################################### 輸出結果 ###################################################### 
 
 output_dir = './output/main'
 os.makedirs(output_dir, exist_ok=True)
 
-# Print to csv file
+# 輸出到 CSV 文件
 csv_file_path = os.path.join(output_dir, 'output.csv')
 with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
-    fieldnames = ['filename', 'time_abs(%Y-%m-%dT%H:%M:%S.%f)', 'time_rel(sec)']
+    fieldnames = ['filename', 'time_abs(%Y-%m-%dT%H:%M:%S.%f)', 'time_rel(sec)', 'event']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
     writer.writeheader()  # 寫入標頭
     for i, result in enumerate(output):
         # 將時間轉換為所需的格式
-        time_str = f"2024-10-03T{result['time']}"  # time_abs(%Y-%m-%dT%H:%M:%S.%f)
-        time_rel = i+1 * 30  # time_rel(sec)
-        filename = f"data_{i + 1}.txt"  # filename
+        time_str = result['time_abs'].strftime('%Y-%m-%dT%H:%M:%S.%f') if isinstance(result['time_abs'], datetime) else str(result['time_abs'])
+        time_rel = result['time_rel']  # 使用提供的相對時間
+        filename = result['filename']  # 使用原始文件名
         writer.writerow({
             'filename': filename,
             'time_abs(%Y-%m-%dT%H:%M:%S.%f)': time_str,
-            'time_rel(sec)': time_rel
+            'time_rel(sec)': time_rel,
+            'event': result['decision']  # 將 event 值設置為結果的 decision
         })
 
 print("CSV 檔案已成功生成！")

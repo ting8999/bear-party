@@ -10,10 +10,19 @@ Original file is located at
 import os
 import numpy as np
 import scipy.io
+from datetime import datetime
 
 # 定義資料夾路徑和標準閾值
-folder = '/content/test'  # 你的資料夾路徑
+folder = './test'  # 你的資料夾路徑
 standard = 6  # 設定標準閾值，依你的需求調整
+
+def convert_to_reltime(time_str):
+    """將 ISO 8601 格式的時間字串 (格式: YYYY-MM-DDTHH:MM:SS.ssssss) 轉換為一天中的秒數"""
+    # 提取時間部分 HH:MM:SS
+    time_part = time_str.split('T')[1].split('.')[0]  # 只保留 HH:MM:SS
+    time_obj = datetime.strptime(time_part, "%H:%M:%S")
+    return time_obj.hour * 3600 + time_obj.minute * 60 + time_obj.second
+
 
 def process_file(file_path):
     # 讀取 .mat 文件
@@ -35,9 +44,9 @@ def process_file(file_path):
     else:
         log_max_amplitude = np.log10(max_amplitude)
 
-    # 提取第一個和最後一個 time_rel 資料
-    first_time = abs_time[0]
-    last_time = abs_time[-1]
+    # 將 abs_time 轉換為相對時間，即一天中的秒數
+    first_time = abs_time[0]  # 第一個時間點轉換為秒數
+    last_time = convert_to_reltime(abs_time[0])  # 最後一個時間點轉換為秒數
 
     # 比較最大振幅取 log 是否大於標準值，並回傳對應結果
     if log_max_amplitude > standard:
@@ -53,6 +62,8 @@ for file in os.listdir(folder):
         result = process_file(file_path)
         results.append(result)
 
-# 打印結果
-for res in results:
-    print(res)
+# # Check Results
+# for res in results:
+#     print(res)
+
+print('FFT has done')
