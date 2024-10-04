@@ -43,10 +43,15 @@ for filename in os.listdir(mseed_directory):
                 if len(segment) > 0:
                     hhz_segment_trace = segment[0]
                     times_rel = hhz_segment_trace.times()  # 相对于开始时间的时间序列
+                    times_abs = [segment_start_time + t for t in times_rel]  # 绝对时间序列
                     velocities = hhz_segment_trace.data  # 速度数据
+
+                    # 将绝对时间转换为字符串格式
+                    time_abs_str = [t.strftime("%Y-%m-%dT%H:%M:%S.%f") for t in times_abs]
 
                     # 构建保存到 .mat 文件的数据结构
                     extracted_data = {
+                        'time_abs': time_abs_str,
                         'time_rel': times_rel,
                         'velocity': velocities
                     }
