@@ -54,7 +54,7 @@ output = Weighted_Fcn(input_data, weights)
 
 ###################################################### 輸出結果 ###################################################### 
 
-output_dir = './output/main'
+output_dir = './output'
 os.makedirs(output_dir, exist_ok=True)
 
 # 輸出到 CSV 文件

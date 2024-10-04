@@ -12,8 +12,6 @@ import numpy as np
 import scipy.io
 from datetime import datetime
 
-# 定義資料夾路徑和標準閾值
-folder = './test'  # 你的資料夾路徑
 standard = 6  # 設定標準閾值，依你的需求調整
 
 def convert_to_reltime(time_str):
@@ -50,17 +48,9 @@ def process_file(file_path):
 
     # 比較最大振幅取 log 是否大於標準值，並回傳對應結果
     if log_max_amplitude > standard:
-        return os.path.basename(file_path), first_time, last_time, 0
+        return os.path.basename(file_path), first_time, last_time, 1    # 有地震
     else:
-        return os.path.basename(file_path), first_time, last_time, 1
-
-# 遍歷資料夾中的所有文件
-results = []
-for file in os.listdir(folder):
-    if file.endswith('.mat'):
-        file_path = os.path.join(folder, file)
-        result = process_file(file_path)
-        results.append(result)
+        return os.path.basename(file_path), first_time, last_time, 0    # 沒地震
 
 # # Check Results
 # for res in results:
