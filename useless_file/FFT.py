@@ -12,7 +12,7 @@ import numpy as np
 import scipy.io
 from datetime import datetime
 
-standard = 6  # 設定標準閾值，依你的需求調整
+standard = 1e-7 # 設定標準閾值，依你的需求調整
 
 def convert_to_reltime(time_str):
     """將 ISO 8601 格式的時間字串 (格式: YYYY-MM-DDTHH:MM:SS.ssssss) 轉換為一天中的秒數"""
@@ -36,18 +36,18 @@ def fft_process(file_path):
     # 取最大振幅
     max_amplitude = np.max(magnitude)
 
-    # 取 log10(最大振幅)
-    if max_amplitude == 0:
-        log_max_amplitude = -np.inf  # 防止 0 的 log10 出現 -inf
-    else:
-        log_max_amplitude = np.log10(max_amplitude)
+    # # 取 log10(最大振幅)
+    # if max_amplitude == 0:
+    #     log_max_amplitude = -np.inf  # 防止 0 的 log10 出現 -inf
+    # else:
+    #     log_max_amplitude = np.log10(max_amplitude)
 
     # 將 abs_time 轉換為相對時間，即一天中的秒數
     first_time = abs_time[0]  # 第一個時間點轉換為秒數
-    last_time = convert_to_reltime(abs_time[0])  # 最後一個時間點轉換為秒數
+    last_time = convert_to_reltime(abs_time[0])  # reltime
 
     # 比較最大振幅取 log 是否大於標準值，並回傳對應結果
-    if log_max_amplitude > standard:
+    if max_amplitude > standard:
         return os.path.basename(file_path), first_time, last_time, 1    # 有地震
     else:
         return os.path.basename(file_path), first_time, last_time, 0    # 沒地震
