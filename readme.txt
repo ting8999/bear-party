@@ -11,6 +11,10 @@ This project focuses on detecting seismic events on Mars and the Moon using a co
    Place the training data in the following path:  
    `./space_apps_2024_seismic_detection/data/lunar/training/catalogs`
 
+	you can change LOF.py
+	def LOF_detect(folder_path, output_file_path, window_duration=3600, stride_duration=1800, anomaly_threshold=8)
+	to
+	def LOF_detect(folder_path, output_file_path, window_duration=900, stride_duration=450, anomaly_threshold=8)
 ## Execution
 3. **Run the Main Program**  
    In the terminal, navigate to the project directory and execute the `main` file to start the project:
