@@ -25,7 +25,7 @@ test_filename = row.filename
 ########################################### 匯入 spectrogram 的 csv ###########################################
 spec_input = './space_apps_2024_seismic_detection/data/lunar/training/data/S12_GradeA/'      # Input miniseed
 spec_directory = './output/'                                                                      # Output csv
-# spectrogram_detect(spec_input, spec_directory)    # 暫時不跑演算法，只記資料
+spectrogram_detect(spec_input, spec_directory)    # 暫時不跑演算法，只記資料
 spec_file = spec_directory + 'spectrogram_output.csv'
 spec = pd.read_csv(spec_file)
 # 從目錄中取得到達時間
@@ -39,8 +39,8 @@ spec_test_filename = spec_row.filename
 ########################################### 匯入 LOF 的 csv ###########################################
 LOF_input = './space_apps_2024_seismic_detection/data/lunar/training/data/S12_GradeA/'           # Input csv
 LOF_directory = './output/'                                                                      # Output csv
-# LOF_detect(LOF_input, LOF_directory)    # 暫時不跑演算法，只記資料
 LOF_file = LOF_directory + 'LOF_output.csv'
+LOF_detect(LOF_input, LOF_file)    # 暫時不跑演算法，只記資料
 LOF = pd.read_csv(LOF_file)
 # 從目錄中取得到達時間
 LOF_row = LOF.iloc[r]
@@ -50,7 +50,7 @@ LOF_arrival_time = datetime.strptime(LOF_row['time_abs(%Y-%m-%dT%H:%M:%S.%f)'], 
 LOF_arrival_time_rel = LOF_row['time_rel(sec)']
 LOF_test_filename = LOF_row.filename
 
-## 讀取 miniseed 檔案
+########################################### 讀取 miniseed 檔案 ###########################################
 data_directory = './space_apps_2024_seismic_detection/data/lunar/training/data/S12_GradeA/'         # Input miniseed for create plot base
 mseed_file = f'{data_directory}{test_filename}.mseed'
 st = read(mseed_file)
