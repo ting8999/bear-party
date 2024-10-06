@@ -97,6 +97,6 @@ def spectrogram_detect(data_directory, output_directory,
     print('spectrogram has done')
 
 # 使用範例
-data_directory = './space_apps_2024_seismic_detection/data/lunar/training/data/S12_GradeA/'   # Input miniseed
-output_directory = './output/'          # Output csv
-spectrogram_detect(data_directory, output_directory)
+# data_directory = './space_apps_2024_seismic_detection/data/lunar/training/data/S12_GradeA/'   # Input miniseed
+# output_directory = './output/'          # Output csv
+# spectrogram_detect(data_directory, output_directory)
