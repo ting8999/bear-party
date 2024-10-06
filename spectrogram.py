@@ -62,7 +62,6 @@ def spectrogram_detect(data_directory, output_directory,
             for idx in significant_gradient_indices:
                 if len(filtered_event_times) == 0 or (idx - filtered_event_times[-1]) > min_event_interval:
                     filtered_event_times.append(idx)
-
             # Convert indices to time values and record detection times
             for event_idx in filtered_event_times:
                 event_time = t[event_idx]
@@ -95,8 +94,9 @@ def spectrogram_detect(data_directory, output_directory,
     detect_df.to_csv(output_file, index=False)
 
     print(f"Detection results saved to {output_file}")
+    print('spectrogram has done')
 
-# # 使用範例
-# data_directory = './space_apps_2024_seismic_detection/data/lunar/training/data/S12_GradeA/'   # Input miniseed
-# output_directory = './output/'          # Output csv
-# detect_events(data_directory, output_directory)
+# 使用範例
+data_directory = './space_apps_2024_seismic_detection/data/lunar/training/data/S12_GradeA/'   # Input miniseed
+output_directory = './output/'          # Output csv
+spectrogram_detect(data_directory, output_directory)

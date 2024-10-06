@@ -96,6 +96,7 @@ def LOF_detect(folder_path, output_file_path, window_duration=3600, stride_durat
         else:
             print(f"檔案 {file_name} 中沒有找到異常點。")
 
+    print('LOF has done')
     # 將outputscv使用 header=['filename', 'time_abs(%Y-%m-%dT%H:%M:%S.%f)', 'time_rel(sec)']
 
 
