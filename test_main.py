@@ -5,22 +5,39 @@ from obspy import read
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import os
+from spectrogram import spectrogram_detect
 
 # 匯入事件目錄
-cat_directory = './space_apps_2024_seismic_detection/data/lunar/training/catalogs/'
+cat_directory = './output/'
 cat_file = cat_directory + 'apollo12_catalog_GradeA_final.csv'
 cat = pd.read_csv(cat_file)
+r = 7   # 在哪一行
 
 # 從目錄中取得到達時間
-row = cat.iloc[34]
+row = cat.iloc[r]
 arrival_time = datetime.strptime(row['time_abs(%Y-%m-%dT%H:%M:%S.%f)'], '%Y-%m-%dT%H:%M:%S.%f')
 
 # 取得相對到達時間及檔案名稱
 arrival_time_rel = row['time_rel(sec)']
 test_filename = row.filename
 
-# 讀取 miniseed 檔案
-data_directory = './space_apps_2024_seismic_detection/data/lunar/training/data/S12_GradeA/'
+## 匯入 spectrogram 的 csv
+spec_input = './space_apps_2024_seismic_detection/data/lunar/training/data/S12_GradeA/'      # Input miniseed
+spec_directory = './output/'                                                                      # Output csv
+spectrogram_detect(spec_input, spec_directory)
+spec_file = spec_directory + 'spectrogram_output.csv'
+spec = pd.read_csv(spec_file)
+
+# 從目錄中取得到達時間
+spec_row = spec.iloc[r]
+spec_arrival_time = datetime.strptime(spec_row['time_abs(%Y-%m-%dT%H:%M:%S.%f)'], '%Y-%m-%dT%H:%M:%S.%f')
+
+# 取得相對到達時間及檔案名稱
+spec_arrival_time_rel = spec_row['time_rel(sec)']
+spec_test_filename = spec_row.filename
+
+## 讀取 miniseed 檔案
+data_directory = './space_apps_2024_seismic_detection/data/lunar/training/data/S12_GradeA/'         # Input miniseed for create plot base
 mseed_file = f'{data_directory}{test_filename}.mseed'
 st = read(mseed_file)
 
@@ -32,6 +49,7 @@ tr_data = tr.data
 # 取得資料的開始時間
 starttime = tr.stats.starttime.datetime
 arrival = (arrival_time - starttime).total_seconds()
+spec_arrival = (spec_arrival_time - starttime).total_seconds()
 
 # 設定頻率範圍
 minfreq = 0.5
@@ -56,7 +74,9 @@ fig = plt.figure(figsize=(10, 10))
 
 ax = plt.subplot(2, 1, 1)
 ax.plot(tr_times_filt, tr_data_filt)
-# ax.axvline(x=arrival, color='red', label='Detection')
+ax.axvline(x=arrival, color='red', label='Detection')
+ax.legend(loc='upper left')
+ax.axvline(x=spec_arrival,c='green', label=f'Spactrogram_Estimated', linestyle='--')
 ax.legend(loc='upper left')
 ax.set_xlim([min(tr_times_filt), max(tr_times_filt)])
 ax.set_ylabel('Velocity (m/s)')
@@ -69,7 +89,8 @@ ax2.set_xlabel(f'Time (Day Hour:Minute)', fontweight='bold')
 ax2.set_ylabel('Frequency (Hz)', fontweight='bold')
 ax.set_title(f'{test_filename}', fontweight='bold')
 # # 標記檢測到的事件和估算事件（多個事件）
-# ax2.axvline(x=arrival, c='red', label='Catalog Detection')
+ax2.axvline(x=arrival, c='red', label='Catalog Detection')
+ax2.axvline(x=spec_arrival,c='green', label=f'Spactrogram_Estimated', linestyle='--')
 # for i, event_time in enumerate(event_times):
 #     ax2.axvline(x=event_time, c='yellow', label=f'Estimated Event {i+1}', linestyle='--')
 

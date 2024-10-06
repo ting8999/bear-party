@@ -24,14 +24,7 @@ if current_data_status == D:
         print(f"只能相信 B")
     elif EventCombination == "C":
         print(f"只能相信 C")
-    else:
-        print(f"error")
-
-elif current_data_status == E:
-    # 多筆資料的處理
-    EventCombination = "AB"  # 假設這是當前的事件組合
-
-    if EventCombination == "AB":
+    elif EventCombination == "AB":
         print(f"相信 A 因為 A 準確率最高 or 其他判斷標準")
     elif EventCombination == "AC":
         print(f"相信 A 因為 A 準確率最高 or 其他判斷標準")
@@ -41,5 +34,27 @@ elif current_data_status == E:
         print(f"相信 A 因為 A 準確率最高 or 其他判斷標準")
     else:
         print(f"error")
+
+elif current_data_status == E:
+    # 多筆資料的處理
+    EventCombination = "AB"  # 假設這是當前的事件組合
+
+    if EventCombination == "A":
+        print(f"只能相信 A")
+    elif EventCombination == "B":
+        print(f"只能相信 B")
+    elif EventCombination == "C":
+        print(f"只能相信 C")
+    elif EventCombination == "AB":
+        print(f"相信 A 因為 A 準確率最高 or 其他判斷標準")
+    elif EventCombination == "AC":
+        print(f"相信 A 因為 A 準確率最高 or 其他判斷標準")
+    elif EventCombination == "BC":
+        print(f"相信 B 因為 B 準確率最高 or 其他判斷標準")
+    elif EventCombination == "ABC":
+        print(f"相信 A 因為 A 準確率最高 or 其他判斷標準")
+    else:
+        print(f"error")
+
 else:
-    print("error")
+    print("沒有任何地震資料")
